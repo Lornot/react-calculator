@@ -20455,25 +20455,85 @@ module.exports = require('./lib/React');
 
 },{"./lib/React":155}],178:[function(require,module,exports){
 var React = require('react');
+var Input = require('./Input.jsx');
+var Operation = require('./Operation.jsx');
+var Clear = require('./Clear.jsx');
+
+var OperationsData = [{
+    'title': 'add',
+    'sign': '+'
+}, {
+    'title': 'substruct',
+    'sign': '-'
+}, {
+    'title': 'divide',
+    'sign': '/'
+}, {
+    'title': 'multiply',
+    'sign': '*'
+}];
 
 var Calculator = React.createClass({
-    displayName: "Calculator",
+    displayName: 'Calculator',
 
+
+    getInitialState: function () {
+        return {
+            'number1': 'NUMBER e.g. 1337',
+            'number2': 'NUMBER e.g. 2108',
+            'result': 'Result'
+        };
+    },
+    handleOperationClick: function () {
+        alert('sadfsadf');
+    },
+    clear: function () {
+        alert('clear ');
+    },
+    onChange() {
+        alert('Change the number');
+    },
     render: function () {
+
+        var Operations = OperationsData.map(function (operation) {
+            return React.createElement(Operation, { type: operation.title, ref: operation.title });
+        });
+
         return React.createElement(
-            "div",
-            { className: "container" },
+            'div',
+            { className: 'container' },
             React.createElement(
-                "div",
-                { className: "row" },
-                React.createElement("div", { className: "col-md-offset-3" }),
+                'div',
+                { className: 'row' },
+                React.createElement('div', { className: 'col-md-offset-3' }),
                 React.createElement(
-                    "div",
-                    { className: "col-md-offset-6" },
+                    'div',
+                    { className: 'col-md-offset-6' },
                     React.createElement(
-                        "h1",
+                        'h1',
                         null,
-                        "Simple calculator"
+                        'Simple calculator'
+                    ),
+                    React.createElement(
+                        'div',
+                        { className: 'form-group' },
+                        React.createElement(Input, { type: 'text', ref: 'Number1', onChange: this.onChange, placeholder: this.state.number1 }),
+                        React.createElement(Input, { type: 'text', onChange: this.onChange, placeholder: this.state.number2 })
+                    ),
+                    React.createElement(
+                        'div',
+                        { className: 'operations' },
+                        Operations
+                    ),
+                    React.createElement(
+                        'div',
+                        { className: 'result' },
+                        React.createElement(Input, { disabled: 'disabled', type: 'text', placeholder: this.state.result })
+                    ),
+                    React.createElement(
+                        'div',
+                        null,
+                        React.createElement(Clear, { ref: 'Clear', onClick: this.clear })
                     )
                 )
             )
@@ -20483,11 +20543,68 @@ var Calculator = React.createClass({
 
 module.exports = Calculator;
 
-},{"react":177}],179:[function(require,module,exports){
+},{"./Clear.jsx":179,"./Input.jsx":180,"./Operation.jsx":181,"react":177}],179:[function(require,module,exports){
+var React = require('react');
+
+var Clear = React.createClass({
+    displayName: "Clear",
+
+
+    render: function () {
+        return React.createElement(
+            "button",
+            { className: "btn btn-danger" },
+            "Clear"
+        );
+    }
+});
+
+module.exports = Clear;
+
+},{"react":177}],180:[function(require,module,exports){
+var React = require('react');
+
+var Input = React.createClass({
+    displayName: 'Input',
+
+
+    setInitialState: function () {
+        this.setInitialState({ 'result': 0, 'valid': true });
+    },
+    onChange: function (e) {},
+    render: function () {
+        return React.createElement('input', { onChange: this.onChange, className: 'form-control', type: this.props.type, placeholder: this.props.placeholder, disabled: this.props.disabled });
+    }
+});
+
+module.exports = Input;
+
+},{"react":177}],181:[function(require,module,exports){
+var React = require('react');
+
+var Operation = React.createClass({
+    displayName: "Operation",
+
+    calculate: function (a, b) {
+
+        return a + b;
+    },
+    render: function () {
+        return React.createElement(
+            "button",
+            { type: "button", className: "btn btn-primary", onClick: this.onClick },
+            this.props.type
+        );
+    }
+});
+
+module.exports = Operation;
+
+},{"react":177}],182:[function(require,module,exports){
 var React = require('react');
 var ReactDOM = require('react-dom');
 var Calculator = require('./components/Calculator.jsx');
 
 ReactDOM.render(React.createElement(Calculator, null), document.getElementById('calculator'));
 
-},{"./components/Calculator.jsx":178,"react":177,"react-dom":26}]},{},[179]);
+},{"./components/Calculator.jsx":178,"react":177,"react-dom":26}]},{},[182]);

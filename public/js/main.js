@@ -20455,7 +20455,7 @@ module.exports = require('./lib/React');
 
 },{"./lib/React":155}],178:[function(require,module,exports){
 var React = require('react');
-var Input = require('./Input.jsx');
+var MyInput = require('./MyInput.jsx');
 var Operation = require('./Operation.jsx');
 var Clear = require('./Clear.jsx');
 
@@ -20476,11 +20476,12 @@ var OperationsData = [{
 var Calculator = React.createClass({
     displayName: 'Calculator',
 
-
     getInitialState: function () {
         return {
             'number1': 'NUMBER e.g. 1337',
             'number2': 'NUMBER e.g. 2108',
+            'number1_valid': true,
+            'number2_valid': true,
             'result': 'Result'
         };
     },
@@ -20490,14 +20491,31 @@ var Calculator = React.createClass({
     clear: function () {
         alert('clear ');
     },
-    onChange() {
-        alert('Change the number');
+    handleChange(element) {
+        let id = element.target.id;
+        let val = element.target.value;
+        let obj = {};
+        obj[id] = val;
+        this.setState(obj);
+    },
+    calculate: function (element) {
+        let sign = element.target.getAttribute('data-sign');
+
+        if (isNaN(this.state.number1)) this.state({ 'number1_valid': false });
+
+        if (isNaN(this.state.number2)) this.state({ 'number2_valid': false });
+
+        let result = eval(this.state.number1 + sign + this.state.number2);
+
+        this.setState({ 'result': result });
     },
     render: function () {
 
-        var Operations = OperationsData.map(function (operation) {
-            return React.createElement(Operation, { type: operation.title, ref: operation.title });
-        });
+        // var Operations = OperationsData.map(
+        //     function (operation) {
+        //         return <Operation type={operation.title} onClick={operation.calculate} />
+        //     }
+        // );
 
         return React.createElement(
             'div',
@@ -20517,18 +20535,21 @@ var Calculator = React.createClass({
                     React.createElement(
                         'div',
                         { className: 'form-group' },
-                        React.createElement(Input, { type: 'text', ref: 'Number1', onChange: this.onChange, placeholder: this.state.number1 }),
-                        React.createElement(Input, { type: 'text', onChange: this.onChange, placeholder: this.state.number2 })
+                        React.createElement(MyInput, { type: 'text', id: 'number1', ref: 'Number1', onChange: this.handleChange, placeholder: this.state.number1 }),
+                        React.createElement(MyInput, { type: 'text', id: 'number2', onChange: this.handleChange, placeholder: this.state.number2 })
                     ),
                     React.createElement(
                         'div',
                         { className: 'operations' },
-                        Operations
+                        React.createElement(Operation, { title: 'Add', sign: '+', onClick: this.calculate }),
+                        React.createElement(Operation, { title: 'Substruct', sign: '-', onClick: this.calculate }),
+                        React.createElement(Operation, { title: 'Divide', sign: '/', onClick: this.calculate }),
+                        React.createElement(Operation, { title: 'Multiply', sign: '*', onClick: this.calculate })
                     ),
                     React.createElement(
                         'div',
                         { className: 'result' },
-                        React.createElement(Input, { disabled: 'disabled', type: 'text', placeholder: this.state.result })
+                        React.createElement(MyInput, { disabled: 'disabled', type: 'text', placeholder: this.state.result })
                     ),
                     React.createElement(
                         'div',
@@ -20543,7 +20564,7 @@ var Calculator = React.createClass({
 
 module.exports = Calculator;
 
-},{"./Clear.jsx":179,"./Input.jsx":180,"./Operation.jsx":181,"react":177}],179:[function(require,module,exports){
+},{"./Clear.jsx":179,"./MyInput.jsx":180,"./Operation.jsx":181,"react":177}],179:[function(require,module,exports){
 var React = require('react');
 
 var Clear = React.createClass({
@@ -20564,20 +20585,19 @@ module.exports = Clear;
 },{"react":177}],180:[function(require,module,exports){
 var React = require('react');
 
-var Input = React.createClass({
-    displayName: 'Input',
+var MyInput = React.createClass({
+    displayName: 'MyInput',
 
 
     setInitialState: function () {
         this.setInitialState({ 'result': 0, 'valid': true });
     },
-    onChange: function (e) {},
     render: function () {
-        return React.createElement('input', { onChange: this.onChange, className: 'form-control', type: this.props.type, placeholder: this.props.placeholder, disabled: this.props.disabled });
+        return React.createElement('input', { onChange: this.props.onChange, className: 'form-control', id: this.props.id, type: this.props.type, placeholder: this.props.placeholder, disabled: this.props.disabled });
     }
 });
 
-module.exports = Input;
+module.exports = MyInput;
 
 },{"react":177}],181:[function(require,module,exports){
 var React = require('react');
@@ -20585,15 +20605,19 @@ var React = require('react');
 var Operation = React.createClass({
     displayName: "Operation",
 
+    // getInitialState: function () {
+    //     this.setInitialState({
+    //         'text' : this.props.type
+    //     })
+    // },
     calculate: function (a, b) {
-
-        return a + b;
+        this.props.type = 1;
     },
     render: function () {
         return React.createElement(
             "button",
-            { type: "button", className: "btn btn-primary", onClick: this.onClick },
-            this.props.type
+            { type: "button", className: "btn btn-primary", title: this.props.title, "data-sign": this.props.sign, onClick: this.props.onClick },
+            this.props.title
         );
     }
 });

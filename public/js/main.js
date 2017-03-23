@@ -20478,34 +20478,46 @@ var Calculator = React.createClass({
 
     getInitialState: function () {
         return {
-            'number1': 'NUMBER e.g. 1337',
-            'number2': 'NUMBER e.g. 2108',
-            'number1_valid': true,
-            'number2_valid': true,
+            'number1_placeholder': 'NUMBER e.g. 1337',
+            'number1_value': '',
+            'number2_placeholder': 'NUMBER e.g. 2108',
+            'number2_value': '',
             'result': 'Result'
         };
     },
-    handleOperationClick: function () {
-        alert('sadfsadf');
-    },
     clear: function () {
-        alert('clear ');
+        this.setState({
+            'number1_value': '',
+            'number2_value': '',
+            'result': 'Result'
+        });
+        this.refs.number1.setState({ 'valid': true });
+        this.refs.number2.setState({ 'valid': true });
     },
     handleChange(element) {
         let id = element.target.id;
         let val = element.target.value;
+
+        let ref_object = this.refs[id];
+        if (isNaN(val)) {
+            ref_object.setState({ 'valid': false });
+        } else {
+            ref_object.setState({ 'valid': true });
+        }
         let obj = {};
-        obj[id] = val;
+        let property_name = id + '_value';
+        obj[property_name] = val;
         this.setState(obj);
     },
     calculate: function (element) {
         let sign = element.target.getAttribute('data-sign');
 
-        if (isNaN(this.state.number1)) this.state({ 'number1_valid': false });
+        if (!this.refs.number1.state.valid || !this.refs.number2.state.valid) {
+            this.setState({ 'result': 'Invalid inputs' });
+            return;
+        }
 
-        if (isNaN(this.state.number2)) this.state({ 'number2_valid': false });
-
-        let result = eval(this.state.number1 + sign + this.state.number2);
+        let result = eval(this.state.number1_value + sign + this.state.number2_value);
 
         this.setState({ 'result': result });
     },
@@ -20534,9 +20546,9 @@ var Calculator = React.createClass({
                     ),
                     React.createElement(
                         'div',
-                        { className: 'form-group' },
-                        React.createElement(MyInput, { type: 'text', id: 'number1', ref: 'Number1', onChange: this.handleChange, placeholder: this.state.number1 }),
-                        React.createElement(MyInput, { type: 'text', id: 'number2', onChange: this.handleChange, placeholder: this.state.number2 })
+                        { className: 'form-group ' },
+                        React.createElement(MyInput, { type: 'text', id: 'number1', ref: 'number1', onChange: this.handleChange, placeholder: this.state.number1_placeholder, value: this.state.number1_value }),
+                        React.createElement(MyInput, { type: 'text', id: 'number2', ref: 'number2', onChange: this.handleChange, placeholder: this.state.number2_placeholder, value: this.state.number2_value })
                     ),
                     React.createElement(
                         'div',
@@ -20574,7 +20586,7 @@ var Clear = React.createClass({
     render: function () {
         return React.createElement(
             "button",
-            { className: "btn btn-danger" },
+            { className: "btn btn-danger", onClick: this.props.onClick },
             "Clear"
         );
     }
@@ -20589,11 +20601,27 @@ var MyInput = React.createClass({
     displayName: 'MyInput',
 
 
-    setInitialState: function () {
-        this.setInitialState({ 'result': 0, 'valid': true });
+    getInitialState: function () {
+        return {
+            'result': 0,
+            'valid': true
+        };
     },
     render: function () {
-        return React.createElement('input', { onChange: this.props.onChange, className: 'form-control', id: this.props.id, type: this.props.type, placeholder: this.props.placeholder, disabled: this.props.disabled });
+
+        var formClass = this.state.valid ? 'form-group' : 'form-group has-error';
+        var message = this.state.valid ? '' : 'This is not a number';
+
+        return React.createElement(
+            'div',
+            { className: formClass },
+            React.createElement(
+                'label',
+                { className: 'control-label', htmlFor: 'inputError1' },
+                message
+            ),
+            React.createElement('input', { onChange: this.props.onChange, className: 'form-control', id: this.props.id, type: this.props.type, placeholder: this.props.placeholder, disabled: this.props.disabled, value: this.props.value })
+        );
     }
 });
 
@@ -20605,14 +20633,6 @@ var React = require('react');
 var Operation = React.createClass({
     displayName: "Operation",
 
-    // getInitialState: function () {
-    //     this.setInitialState({
-    //         'text' : this.props.type
-    //     })
-    // },
-    calculate: function (a, b) {
-        this.props.type = 1;
-    },
     render: function () {
         return React.createElement(
             "button",

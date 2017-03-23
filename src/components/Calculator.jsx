@@ -25,36 +25,46 @@ var OperationsData = [
 var Calculator = React.createClass({
     getInitialState: function () {
         return {
-            'number1' : 'NUMBER e.g. 1337',
-            'number2' : 'NUMBER e.g. 2108',
-            'number1_valid' : true,
-            'number2_valid' : true,
-            'result'  : 'Result'
+            'number1_placeholder' : 'NUMBER e.g. 1337',
+            'number1_value'       : '',
+            'number2_placeholder' : 'NUMBER e.g. 2108',
+            'number2_value'       : '',
+            'result'              : 'Result'
         }
     },
-    handleOperationClick: function () {
-        alert('sadfsadf');
-    },
     clear: function () {
-        alert('clear ');
+        this.setState({
+            'number1_value' : '',
+            'number2_value' : '',
+            'result'  : 'Result',
+        });
+        this.refs.number1.setState({'valid':true});
+        this.refs.number2.setState({'valid':true});
     },
     handleChange(element) {
         let id = element.target.id;
         let val = element.target.value;
+
+        let ref_object = this.refs[id];
+        if (isNaN(val)) {
+            ref_object.setState({'valid':false});
+        } else {
+            ref_object.setState({'valid':true});
+        }
         let obj = {};
-        obj[id] = val;
+        let property_name = id + '_value';
+        obj[property_name] = val;
         this.setState(obj);
     },
     calculate: function(element) {
         let sign = element.target.getAttribute('data-sign');
 
-        if (isNaN(this.state.number1))
-            this.state({'number1_valid':false});
+        if (!this.refs.number1.state.valid || !this.refs.number2.state.valid) {
+            this.setState({'result':'Invalid inputs'});
+            return;
+        }
 
-        if (isNaN(this.state.number2))
-            this.state({'number2_valid':false});
-        
-        let result = eval(this.state.number1 + sign + this.state.number2);
+        let result = eval(this.state.number1_value + sign + this.state.number2_value);
 
         this.setState({'result':result});
     },
@@ -72,9 +82,9 @@ var Calculator = React.createClass({
                     <div className="col-md-offset-3"></div>
                     <div className="col-md-offset-6">
                         <h1>Simple calculator</h1>
-                        <div className="form-group">
-                            <MyInput type="text" id="number1" ref="Number1" onChange={this.handleChange} placeholder={this.state.number1}/>
-                            <MyInput type="text" id="number2" onChange={this.handleChange} placeholder={this.state.number2}/>
+                        <div className="form-group ">
+                            <MyInput type="text" id="number1" ref="number1" onChange={this.handleChange} placeholder={this.state.number1_placeholder} value={this.state.number1_value} />
+                            <MyInput type="text" id="number2" ref="number2" onChange={this.handleChange} placeholder={this.state.number2_placeholder} value={this.state.number2_value} />
                         </div>
                         <div className="operations">
                             <Operation title="Add" sign="+" onClick={this.calculate} />
